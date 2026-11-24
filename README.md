@@ -115,5 +115,5 @@ README.original.md     原项目 README 原文（存档，方便对照）
 
 ## 许可
 
-- **代码**：MIT，见 [`LICENSE`](LICENSE)（保留原作者版权声明，并注明二改部分）。
-- **美术素材**（`assets/` 下的图片 / 动图 / 音效、`icon.png`）：**不在 MIT 范围内**，随插件原样提供，说明见 [`PROVENANCE.md`](PROVENANCE.md)，该文件同样保留自原项目并追加了二改说明。
+- **代码**：MIT，见 [`LICENSE`](LICENSE)。文件保留原作者与二改者的两行版权声明，正文为标准 MIT，未附加额外条款，以便 GitHub 正确识别为 MIT 许可。
+- **美术素材**（`assets/` 下的图片 / 动图 / 音效、`icon.png`）：**不在 MIT 范围内**，随插件原样提供，说明见 [`PROVENANCE.md`](PROVENANCE.md)，该文件同样保留自原项目并追加了二改说明（衍生关系与改动范围见第五节）。

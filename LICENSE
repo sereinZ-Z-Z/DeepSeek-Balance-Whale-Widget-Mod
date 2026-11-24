@@ -1,7 +1,7 @@
 MIT License
 
 Copyright (c) 2026 MeteorNOX
-Copyright (c) 2026 XiangRuiZheng (二改部分)
+Copyright (c) 2026 XiangRuiZheng (modifications)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,12 +20,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-附注（不具有额外法律效力，仅作来源说明）：
-
-本仓库是基于 https://github.com/MeteorNOX/DeepSeek-Balance-Whale-Widget
-（Copyright (c) 2026 MeteorNOX，MIT 许可）的衍生作品，二改部分
-Copyright (c) 2026 XiangRuiZheng，同样以 MIT 许可分发。
-二改内容与范围详见 PROVENANCE.md 第五节。
