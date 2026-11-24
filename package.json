@@ -13,6 +13,14 @@
   "main": "lib/index.js",
   "icon": "./icon.png",
   "author": "XiangRuiZheng",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod/issues"
+  },
+  "homepage": "https://github.com/sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod#readme",
   "files": [
     "lib",
     "assets",

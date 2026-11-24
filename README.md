@@ -2,6 +2,7 @@
 
 DeepSeek Harness（DSH）右下角那只小鲸鱼，我给它加了点自己想要的东西。
 
+> **本仓库**：[sereinZ-Z-Z / DeepSeek-Balance-Whale-Widget-Mod](https://github.com/sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod)
 > **这是一份二改（衍生）版本。**
 > 原项目：[**MeteorNOX / DeepSeek-Balance-Whale-Widget**](https://github.com/MeteorNOX/DeepSeek-Balance-Whale-Widget)
 > 本仓库是在原作者 **v0.4.2** 源码的基础上修改而来：**只改了前端挂件脚本 `assets/whale-widget.js`**，
@@ -69,8 +70,8 @@ DeepSeek Harness（DSH）右下角那只小鲸鱼，我给它加了点自己想�
 # Web profile（CLI 支持）
 dsh plugin --profile web add link:<本仓库绝对路径>
 
-# 或直接从 GitHub 装（把 <用户名>/<仓库名> 换成本仓库地址）
-dsh plugin --profile web add github:<用户名>/<仓库名>
+# 或直接从 GitHub 装
+dsh plugin --profile web add github:sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod
 ```
 
 **桌面端（Electron 客户端）读的是 `desktop` profile，`dsh plugin` 命令行按设计拒绝碰它** —— 桌面端怎么装、怎么手动放进 profile，请按原项目 README 的说明操作（本仓库的 `README.original.md` 就是原 README 原文，一字未改）。
