@@ -1,0 +1,30 @@
+{
+  "name": "dsh-whale-widget",
+  "version": "0.5.0-mod.1",
+  "description": "【二改】DSH Web 界面右下角的 DeepSeek 余额小鲸鱼挂件（基于 MeteorNOX 原版 v0.4.2）：在原有余额/今日已用/峰谷定价、自定义泡泡点击序列、逐行样式、音效与每轮消耗等功能上，新增「气泡余额显示源切换（官方 ⟷ 第三方 API）」「余额颜色自定义（24 纯色 + 6 流动渐变）」「一键重载页面」",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "balance",
+    "widget"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "icon": "./icon.png",
+  "author": "XiangRuiZheng",
+  "files": [
+    "lib",
+    "assets",
+    "icon.png",
+    "cordis.patch.yml",
+    "README.md",
+    "PROVENANCE.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "license": "MIT"
+}
