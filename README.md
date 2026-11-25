@@ -64,19 +64,159 @@ DeepSeek Harness（DSH）右下角那只小鲸鱼，我给它加了点自己想�
 
 ## 安装
 
-本仓库是标准 DSH bundle 插件，安装方式与原项目一致：
+> **一句话**：**桌面客户端（Electron）不能用命令行装**，要在会话里让 DSH 自己装；只有 `dsh web` 才用 `dsh plugin`。
+> 两者读的是**不同 profile**（桌面 = `desktop`，网页 = `web`），装错了的表现就是「右下角什么都没有、连 ☰ 也没有、控制台还不报错」。
 
-```bash
-# Web profile（CLI 支持）
-dsh plugin --profile web add link:<本仓库绝对路径>
+本仓库的 `package.json` 里 **`name` 仍是 `dsh-whale-widget`**，和原版是同一个插件身份：
 
-# 或直接从 GitHub 装
+- 属于**直接替换**，不能和原版同时安装；
+- 装之前如果已经装过原版（`github:MeteorNOX/DeepSeek-Balance-Whale-Widget`，或 npm 上的 `dsh-whale-widget`），先卸载；
+- 卸载**不会**删你的数据：泡泡配置、API 配置、记账账本全在 `~/.dsh/` 下，跟插件安装目录无关。
+
+### 第 0 步：先确认你在哪种宿主里用
+
+| 你在哪看到小鲸鱼 | 宿主 | 读哪个 profile | 怎么装 |
+|---|---|---|---|
+| 桌面应用窗口（官方 Electron 客户端） | desktop | `%USERPROFILE%\.dsh\profiles\desktop` | 在会话里让 DSH 用内置 `plugin_manager` 装（见「一」） |
+| 浏览器里的 `dsh web` 页面 | web | `%USERPROFILE%\.dsh\profiles\web` | `dsh plugin --profile web add …`（见「二」） |
+
+### 一、官方桌面客户端（Electron）
+
+`dsh plugin` 命令行**按设计拒绝**操作用户的 desktop profile：
+
+```
+error: profile "desktop" is managed exclusively by the Electron application
+```
+
+所以**不要**照着网页版命令装。按 `--profile web` 装完，插件落在 `web` profile 里，而桌面窗口读的是 `desktop`，一个字也读不到 —— 而且控制台不报错，很难自己发现。
+
+**正确做法**：在桌面客户端的会话里，把下面这段直接发给 DSH。
+
+```text
+请使用当前桌面端内置的 plugin_manager 安装 dsh-whale-widget，
+来源是 github:sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod
+
+安装前请先核对：
+1. 当前 profile 是不是 desktop；
+2. 是否已经装了同名插件 dsh-whale-widget（很可能是 MeteorNOX 原版）。
+   如果已装，报告它的来源与版本，然后替换成上面的来源。
+   注意两者包名相同，属于替换安装，不能共存。
+
+按该工具支持的操作装完后，告诉我安装结果，以及是否需要重启。
+不要自行构造认证 cookie、调用底层 RPC，也不要手改宿主管理的 profile 文件。
+```
+
+几点说明：
+
+- `plugin_manager` 的作用域就是当前 profile（桌面端为 `desktop`），由宿主用自带的包管理器完成安装与挂载登记，不需要你开终端。
+- 安装规格的写法和 `dsh plugin` 一致：`github:<用户>/<仓库>`、`link:<本地目录>`、`<包名>@<版本>`。具体支持到哪一步以工具实际返回为准。
+- 想固定版本：GitHub 源可以带 ref 锁到某个标签，例如 `github:sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod#v0.5.0-mod.1`；不带 ref 就跟 `main`。本仓库**没有发布到 npm**，所以 `dsh-whale-widget@0.5.0-mod.1` 这种写法在这里用不上。
+- 工具不可用、或它不支持你要做的操作时，先让 DSH 说明缺哪项宿主能力，**不要**绕过限制改用 `--profile web`。
+
+**装完要重启**：工具可能返回 `"application":"applied"`，但这不代表当前窗口已经渲染出挂件。若右下角没东西，**完全退出客户端（含系统托盘）再打开**。
+
+**两条自检**，用来区分「没装到位」和「装了但没渲染」：
+
+| 半区 | 检查什么 |
+|---|---|
+| 宿主半区 | `%USERPROFILE%\.dsh\.dshw-turn.json` 存在，且 `seq` 随对话递增 |
+| 客户端半区 | `%APPDATA%\@deepseek-ai\dsh-desktop\Local Storage\leveldb` 里出现 `dshw-pos` / `dshw-last-seq`（这两个键**只有挂件前端**会写） |
+
+桌面端界面里看不到版本号时，翻 `%USERPROFILE%\.dsh\profiles\desktop\package.json` 的 `dsh.profile.bundles`，以及同目录的 `pnpm-lock.yaml`。
+
+### 二、网页版（`dsh web`）
+
+#### 方式 A：直接从 GitHub 安装（最省事）
+
+```powershell
+# 1) 装过原版先卸载 —— 同一个包名，不卸会冲突
+dsh plugin --profile web remove dsh-whale-widget
+
+# 2) 从本仓库安装
+dsh plugin --profile web add github:sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod
+
+# 3) 重启 dsh web，再在浏览器按 Ctrl+F5
+```
+
+装完插件会出现在 DSH 的**插件管理页面**里，之后可以直接在页面里更新，不用再敲命令。
+
+#### 方式 B：装本地目录（想改代码 / 没网络）
+
+```powershell
+# 目录里必须有这几样，缺 assets/ 会没图没声
+Test-Path "D:\Plugins\DeepSeek-Balance-Whale-Widget-Mod\package.json",
+          "D:\Plugins\DeepSeek-Balance-Whale-Widget-Mod\lib\index.js",
+          "D:\Plugins\DeepSeek-Balance-Whale-Widget-Mod\assets\whale-widget.js"
+
+# 装过原版先卸载
+dsh plugin --profile web remove dsh-whale-widget
+
+# 用绝对路径安装（路径含空格要加引号）
+dsh plugin --profile web add link:D:\Plugins\DeepSeek-Balance-Whale-Widget-Mod
+```
+
+- `link:` 是**软链安装**：源目录改了立即生效；但装完**不能移动或重命名该目录**，移动了要重新 `add` 一次。
+- 想要一份独立副本、之后互不同步，就把 `link:` 换成 `file:`。
+- 在仓库根目录里也可以直接 `dsh plugin --profile web add link:.` —— **仓库根目录本身就是插件包**，不要写成 `link:.\dsh-whale-widget`（没有这个子目录，那样会装成普通依赖）。
+- 解压目录要放在**固定位置**（如 `D:\Plugins\…`），不要放下载目录或临时目录。
+
+#### 网络需要代理时
+
+先设环境变量再执行安装，否则 `github:` 拉取会 `Failed to fetch`：
+
+```powershell
+$env:http_proxy="http://127.0.0.1:7890"
+$env:https_proxy="http://127.0.0.1:7890"
+$env:all_proxy="socks5://127.0.0.1:7890"
 dsh plugin --profile web add github:sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod
 ```
 
-**桌面端（Electron 客户端）读的是 `desktop` profile，`dsh plugin` 命令行按设计拒绝碰它** —— 桌面端怎么装、怎么手动放进 profile，请按原项目 README 的说明操作（本仓库的 `README.original.md` 就是原 README 原文，一字未改）。
+### 三、装完验证
 
-> 本仓库的 `package.json` 里 `name` 仍是 `dsh-whale-widget`：它和原版是**同一个插件**，属于直接替换，不要两个同时装。
+网页版（默认端口 3080，跟你实际启动参数为准）：
+
+```powershell
+# 插件是否登记进 bundles
+dsh --profile web --dump-config | Select-String "whale"
+
+# 三个接口应全部 200
+curl http://127.0.0.1:3080/dsh-whale/balance.json   # 含 totalBalance 的 JSON
+curl http://127.0.0.1:3080/dsh-whale/widget.js      # 前端脚本
+curl "http://127.0.0.1:3080/dsh-whale/audio-fragment.wav?id=exp_orb"   # 音效，404 说明 assets/ 不全
+```
+
+桌面端就按上一节的两条自检看，不看端口。
+
+### 四、卸载 / 换回原版
+
+```powershell
+# 网页版
+dsh plugin --profile web remove dsh-whale-widget
+
+# 换回原版
+dsh plugin --profile web add github:MeteorNOX/DeepSeek-Balance-Whale-Widget
+```
+
+桌面端同样是在会话里让 DSH 用 `plugin_manager` 卸载 / 换源，不要手删 profile 目录。卸载后 `~/.dsh/` 下的配置和账本都还在，重新装回来即可继续用。
+
+### 五、装不上怎么排查
+
+| 症状 | 原因 | 怎么办 |
+|---|---|---|
+| 桌面端右下角空白，**连 ☰ 都没有**，控制台无报错 | 装进了 `web` profile，桌面读的是 `desktop` | 用 `plugin_manager` 重装到 desktop，别用 `--profile web` |
+| 报 `profile "desktop" is managed exclusively by the Electron application` | 这是设计如此，不是 bug | 同上，改用 `plugin_manager` |
+| 装完出现了，但菜单里没有「气泡余额 / 余额颜色 / 重载页面」 | 前端脚本还是旧的（缓存），或换了目录但没重启宿主 | 桌面端完全退出（含托盘）重开；网页版重启 `dsh web` + `Ctrl+F5`；也可用菜单里的「重载页面」 |
+| 只看到 `exit 1` / `pnpm failed` | 汇总错误，不能据此判断是代码问题 | 先看 `.plugin-manager/logs/operation-*/pnpm.log` 和 `hub.log` 里**最早的底层报错** |
+| 提示找不到 pnpm | 宿主自带的包管理器和终端 PATH 里的不是同一个 | 先报告宿主用的 pnpm 路径与版本，按该 DSH 版本的安装说明处理，别急着重装插件 |
+| `ERR_PNPM_ADDING_TO_ROOT` | 依赖被加到了 profile 根而不是插件 | 清掉多出来的依赖后重装，不要手改 `package.json` |
+| 余额显示 `--` / 「未配置」 | 凭据没配，或账号没登录 | 见「六、装完还要配什么」 |
+| 版本混乱 / 两个来源并存 | 先用 `remove` 清掉再 `add` 一次 | 见「四」 |
+
+### 六、装完还要配什么
+
+1. **余额从哪来**：内置 DeepSeek 官方余额靠 `DEEPSEEK_API_KEY`（或在 DSH 里登录 DeepSeek 账号，较新版本不配 key 也能取）；第三方中转站靠 `~/.dsh/.dshw-api.json`。字段说明见原 README 的「凭据」一节（`README.original.md`）。
+2. **泡泡模块的 `only` 字段**：想用「显示源切换」，模块上要标 `only: "builtin"` / `only: "custom"`，详见上面「泡泡配置里要写什么」。
+3. **插件更新后**：本仓库若合并了上游新版本，`assets/whale-widget.js` 里带 `// 二改 ·` 的四处需要重新对锚点，否则新菜单可能不出现。
 
 ## 目录结构
 
