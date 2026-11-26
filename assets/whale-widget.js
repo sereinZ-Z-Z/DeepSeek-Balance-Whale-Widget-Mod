@@ -18487,19 +18487,33 @@ function balColorRepaint() {
 }
 
 // ---------- 模块过滤 ----------
-// m.only = 'builtin' | 'custom'；没标 only 的永远显示。custom 渲染前把 modelId 换成当前选中模型。
+// m.only = 'builtin' | 'custom'：显式指定该模块只属于哪个显示源；没标的按下面的规则处理。
 // 最后所有余额模块统一套用自定义颜色。
+// v0.5.1 二改 · 自动模式：整组模块一个 only 都没标时（出厂默认泡泡 / 没改过配置的老用户），
+//   切到第三方就自动把「余额 / 今日已用」换成中转站的数、把「峰谷 / 赠金 / 充值」这类只属于官方
+//   的模块藏起来 —— 用户不用再手改 .dshw-bubble.json 才能让切换生效。
+//   只要组里出现了任意一个 only 标记，就完全按标记走，行为与 v0.5.0 一致（老配置零变化）。
 function bubbleModsForMode(mods) {
   if (!Array.isArray(mods)) return mods
   var mode = balModeGet()
   var isBuiltin = (mode === 'deepseek')
+  var auto = true
+  for (var a = 0; a < mods.length; a++) {
+    if (mods[a] && (mods[a].only === 'builtin' || mods[a].only === 'custom')) { auto = false; break }
+  }
   var out = []
   for (var i = 0; i < mods.length; i++) {
     var m = mods[i]
     if (!m) continue
+    // 峰谷 / 时段倒计时 / 赠金 / 充值余额都是官方 DeepSeek 计价才有的东西：第三方态一律不显示
+    // （真要留，给它显式标 only:'custom'）
+    var officialOnly = (m.type === 'peak' || m.type === 'nextpeak' || m.type === 'bonus' || m.type === 'recharge')
+    if (!isBuiltin && officialOnly && m.only !== 'custom') continue
     if (m.only === 'builtin' && !isBuiltin) continue
     if (m.only === 'custom' && isBuiltin) continue
-    if (m.only === 'custom' && m.type !== 'peak' && m.type !== 'nextpeak') {
+    // 跟随当前显示源：显式标了 custom，或「整组都没标」时的余额 / 今日已用
+    var follow = (m.only === 'custom') || (auto && !isBuiltin && (m.type === 'balance' || m.type === 'today'))
+    if (follow) {
       var c = {}
       for (var k in m) if (Object.prototype.hasOwnProperty.call(m, k)) c[k] = m[k]
       c.modelId = mode
