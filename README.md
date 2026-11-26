@@ -1,5 +1,7 @@
 # DeepSeek-Balance-Whale-Widget —— 二改
 
+**简体中文** · [English](README.en.md)
+
 DeepSeek Harness（DSH）右下角那只小鲸鱼，我给它加了点自己想要的东西。
 
 > **本仓库**：[sereinZ-Z-Z / DeepSeek-Balance-Whale-Widget-Mod](https://github.com/sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod)
@@ -68,6 +70,8 @@ DeepSeek Harness（DSH）右下角那只小鲸鱼，我给它加了点自己想�
 这个文件**只有你在菜单「自定义泡泡」里点过一次保存才会生成**；没有它时插件用出厂默认气泡，正好就是自动模式覆盖的场景。桌面端和网页端各存一份，两边都要改。
 
 ### 更新记录
+
+完整记录（每版的上游基版、保留的增量、修复根因，以及合并上游的步骤）见 [`CHANGELOG.md`](CHANGELOG.md)。
 
 | 版本 | 变更 |
 |---|---|
@@ -244,6 +248,8 @@ test/                  二改不变量自检（`npm test`，14 条断言）
 screenshots.json       市场详情页用的截图清单
 cordis.patch.yml       插件挂载声明（未修改）
 README.original.md     原项目 README 原文（存档，方便对照）
+README.en.md           英文版说明
+CHANGELOG.md           版本记录（上游基版 / 保留增量 / 修复根因）
 ```
 
 改动集中在 `assets/whale-widget.js` 的四个位置，都带 `// 二改 ·` 注释，方便 review：
