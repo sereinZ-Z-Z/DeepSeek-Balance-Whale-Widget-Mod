@@ -12,7 +12,7 @@
   "type": "module",
   "main": "lib/index.js",
   "icon": "./icon.png",
-  "author": "XiangRuiZheng",
+  "author": "Serein",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod.git"
