@@ -47,6 +47,7 @@
 
 - **仓库 topics 从 5 个扩到 9 个** —— 补 `cordis`、`deepseek`、`dsh-plugins`、`floating-widget`。此项属于仓库设置，不在代码里。影响的是 `dsh-plugin.org` 这类按 topic 每日扫描的目录站能不能收到本仓库。
 - **`README.md`** —— 新增「自检：`npm test`」一节；目录结构补 `test/` 与 `screenshots.json`；兼容性一节说明 CI 多了这层检查。
+- **`README.md` / `README.en.md`** —— 新增「配置第三方中转站」一节（中英各一份）：四步界面路径、先用 `curl` 判断站方是否开放账单接口的三档分类、OneAPI / New API 的免填项与 Base URL 不带 `/v1` 的坑、自定义 HTTP 的字段对照表（路径语法 `a.b[0].c`、乘数、请求头列表、必须勾「允许把凭据发送到自定义地址」）、无余额接口时的「事件匹配 + 自定义单价」替代方案，以及 7 条常见错误对照。此前 README 只写了配置文件位置，没有界面步骤。
 - 删掉误建的空目录 `test-out`（未跟踪，无影响）。
 
 ### 已知不足

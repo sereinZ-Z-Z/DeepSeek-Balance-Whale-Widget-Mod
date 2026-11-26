@@ -46,6 +46,86 @@ Selections are stored in `localStorage`:
 
 They survive reloads. If the referenced model is deleted, the source falls back to official rather than getting stuck at `--`.
 
+## Configuring a third-party relay
+
+The "third-party balance" you can select in the bubble is not a standalone setting — it is **a model in the model list**. So the order is: add the model first, then select it from the menu.
+
+### Four steps
+
+1. Open the whale menu → bottom row "**- = 小鲸鱼记账 = -**";
+2. In the panel, section "**模型（提醒 / 预算 / 额度）**" → "**+ 添加模型（自定义 API）**";
+3. Pick the template "**OpenAI 兼容中转站**" (OneAPI / New API family) or "**自定义 HTTP**", then fill in name, Base URL, API key and credential name;
+4. Save → the model appears in the list → click "设置" (settings) on its row → "**密钥 / 接口**" at the bottom of that submenu → "**测试连通性**" (test connectivity) → back in the menu, switch "气泡余额" to it.
+
+> "测试连通性" only exists in the edit form **after saving**; the new-model form does not have that button.
+
+Keys are stored in DSH's official credential store (`~/.dsh/.credentials.yaml`); `~/.dsh/.dshw-api.json` only holds the credential name, **never the plaintext**. The credential name may only contain letters, digits and underscores (≤64 chars) — `MY-RELAY-KEY` will fail to save.
+
+### First, find out whether your relay exposes a balance API
+
+Asking the endpoint directly is much faster than guessing inside the panel:
+
+```powershell
+curl -s -H "Authorization: Bearer sk-yourkey" https://your-relay/v1/dashboard/billing/subscription
+```
+
+| Response | Which case | Section |
+|---|---|---|
+| JSON containing `hard_limit_usd` / `soft_limit_usd` | OneAPI / New API, billing endpoint enabled | 1 |
+| 404 / 401 / an HTML page / `{"error":…}` | Billing endpoint disabled, or a custom endpoint | 2 |
+| Nothing balance-related at all | No balance API | 3 |
+
+### 1. OneAPI / New API family (simplest)
+
+The template already ships two endpoints: `{base}/v1/dashboard/billing/subscription` (total quota) and `.../usage` (used), with the balance derived by subtraction. So **leave the balance / total / used / scale fields empty** — the template defaults apply.
+
+- **Base URL**: the site root, e.g. `https://api.example.com` — **do not append `/v1`**, the template adds it; a trailing slash is stripped automatically. With `/v1` the URL becomes `/v1/v1/...` and returns 404.
+- **Currency**: these endpoints report USD quota, so `USD` is usually right; if your relay puts CNY numbers in `hard_limit_usd`, switch to `CNY` (the number stays, only the symbol changes).
+- After saving, open "密钥 / 接口" and use "测试连通性" to confirm.
+
+### 2. The site has its own balance endpoint → "自定义 HTTP"
+
+Capture one real response first: DevTools → Network, reload the site's wallet/quota page, find the request that returns the balance, and note its **URL, headers and JSON body**. Then:
+
+| Field | What to put | Example |
+|---|---|---|
+| 余额接口 (balance URL) | Full URL; `{base}` and `{key}` are substituted | `{base}/api/user/self` |
+| 请求头 (headers) | `Name:value` list, `{key}` replaced by the secret, multiple headers separated by ASCII semicolons; without a name it is sent as `Authorization` | `Authorization: Bearer {key}`; `x-api-key:{key};anthropic-version:2023-06-01` |
+| 请求方法 / 请求体 / 请求参数 | GET by default; for others the body supports `{key}`, `{base}` and custom params | `POST` + `{"uuid":"{uuid}"}` + `uuid=abc123` |
+| 余额字段 (balance path) | JSON path, arrays use `[0]` | `data.balance`, `balance_infos[0].total_balance` |
+| 总量字段 / 已用字段 | Use these when only total and used are returned; balance = total − used | `data.total` / `data.used` |
+| 数值乘数 (scale) | Multiplier to convert into currency units | cents→yuan `0.01`; 1e-4 units `0.0001` |
+
+You **must** tick "允许把凭据发送到自定义地址" (allow sending credentials to a custom address). When the destination is not a built-in endpoint the plugin refuses to send the key, and you will keep seeing "已拒绝把凭据发出去". This switch can only be set by write requests from **localhost** — a remote session cannot flip it.
+
+### 3. No balance API at all
+
+Nothing to fight: leave the balance URL empty (the "自定义 HTTP" template works too). Balance shows `—`, "used today" is estimated from **local session events**, and accounting still works.
+
+Two optional fields improve the estimate:
+
+- **事件匹配** (event match): keywords for the model name in session events, comma separated (e.g. `deepseek,gpt-4o`). The plugin uses it to attribute each turn's cost to this model; without it "used today" stays at 0.
+- **单价** (unit price: cache hit / uncached input / output, per million tokens in the selected currency): overrides the built-in price table so accounting matches the bill more closely. If the currency is USD, fill in the exchange rate — the ledger settles in CNY.
+
+### Showing this model's balance in the bubble
+
+Two ways, pick one:
+
+- **Switch the source**: menu "气泡余额" → the model name. Since v0.5.1 the default bubble moves "balance" and "used today" to it and hides the peak group automatically.
+- **Add a dedicated module**: in the "custom bubble" palette every custom model has a "**余额·model name**" chip — click or drag it into the bubble. Use this to show official and third-party balances **at the same time**.
+
+### Common errors
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Save fails with "凭据名只能包含字母、数字与下划线" | Hyphens or CJK in the credential name | Use something like `MY_RELAY_KEY` |
+| Balance stays `—` but "测试连通性" passes | The probe hits `/v1/models`, a different path from the balance API | Capture a real response (case 2) and recheck URL and field paths |
+| Balance endpoint returns 404 | Base URL includes `/v1` | Remove it, keep the site root only |
+| "接口返回里没找到配置的字段（检查 JSON 路径）" | Wrong path, or that level is an array | Use `[0]`, e.g. `data[0].balance` |
+| Balance is off by 100× | The API reports cents | Set scale to `0.01` |
+| "已拒绝把凭据发出去" | The allow-custom-address box is not ticked | Tick it in the local panel and retry |
+| Bubble still shows the official balance after switching | Plugin older than v0.5.1 | Upgrade; older builds need manual `only` markers |
+
 ## Bubble config (no editing needed since v0.5.1)
 
 **Out of the box.** After switching to a third party, the bubble should show only "balance" and "used today", with the third party's numbers, and no peak block. If that's what you see, skip this section.
@@ -232,7 +312,7 @@ On desktop, ask DSH to uninstall or re-source via `plugin_manager`; do not delet
 
 ### 6. After install
 
-1. **Where the balance comes from**: official DeepSeek balance uses `DEEPSEEK_API_KEY` (or signing in to a DeepSeek account inside DSH; recent versions work without a key); a third-party relay uses `~/.dsh/.dshw-api.json`. Field reference: "credentials" section of `README.original.md`.
+1. **Where the balance comes from**: official DeepSeek balance uses `DEEPSEEK_API_KEY` (or signing in to a DeepSeek account inside DSH; recent versions work without a key); a third-party relay is added via "+ 添加模型（自定义 API）" in the menu — full steps and field reference in [Configuring a third-party relay](#configuring-a-third-party-relay). The registry lives in `~/.dsh/.dshw-api.json`; keys go to DSH's credential store, never plaintext.
 2. **Bubble config**: works after install, nothing to edit. If the balance does not change and the peak block stays after switching to a third party, confirm you are on `v0.5.1-mod.1` or newer (older builds need manual `only` markers), then read the bubble-config section above.
 3. **After a plugin update**: if this repo merges a new upstream release, the places marked `// 二改 ·` in `assets/whale-widget.js` must be re-anchored, or the new menu rows may not appear.
 
