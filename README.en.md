@@ -119,7 +119,7 @@ Two ways, pick one:
 | Symptom | Cause | Fix |
 |---|---|---|
 | Save fails with "凭据名只能包含字母、数字与下划线" | Hyphens or CJK in the credential name | Use something like `MY_RELAY_KEY` |
-| Balance stays `—` but "测试连通性" passes | The probe hits `/v1/models`, a different path from the balance API | Capture a real response (case 2) and recheck URL and field paths |
+| Balance stays `—` but "测试连通性" passes | The probe only checks that the endpoint responds with JSON (it prefers the template's `probeUrl`, otherwise the balance URL) and **does not validate field paths** | Recheck the balance / total JSON paths as in case 2 |
 | Balance endpoint returns 404 | Base URL includes `/v1` | Remove it, keep the site root only |
 | "接口返回里没找到配置的字段（检查 JSON 路径）" | Wrong path, or that level is an array | Use `[0]`, e.g. `data[0].balance` |
 | Balance is off by 100× | The API reports cents | Set scale to `0.01` |
