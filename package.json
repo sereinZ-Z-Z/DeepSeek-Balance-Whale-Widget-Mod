@@ -11,6 +11,9 @@
   ],
   "type": "module",
   "main": "lib/index.js",
+  "scripts": {
+    "test": "node --test"
+  },
   "icon": "./icon.png",
   "author": "Serein",
   "repository": {

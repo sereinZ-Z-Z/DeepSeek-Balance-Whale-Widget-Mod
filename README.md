@@ -240,6 +240,8 @@ assets/
   whale-widget.js      前端挂件本体（二改都在这一个文件里）
   *.png *.gif *.mp3    角色、动图、音效
 tools/                 原作者自带的 CI 审计脚本（未修改）
+test/                  二改不变量自检（`npm test`，14 条断言）
+screenshots.json       市场详情页用的截图清单
 cordis.patch.yml       插件挂载声明（未修改）
 README.original.md     原项目 README 原文（存档，方便对照）
 ```
@@ -251,12 +253,26 @@ README.original.md     原项目 README 原文（存档，方便对照）
 3. `bubbleRowsTo()` 开头：`mods = bubbleModsForMode(mods)`
 4. `onDocPointerDown()` 开头：面板内点击不算外部点击
 
+## 自检：`npm test`
+
+二改份最怕的不是写错，是**跟随上游时改动被悄悄覆盖**——上游每次发版整体替换 `assets/whale-widget.js`，漏一处锚点的表现是「菜单少一行」「切了显示源没反应」，不报错、不崩，只是功能没了。
+
+`test/fork-invariants.test.mjs` 就是防这个的，14 条断言覆盖：显示源切换的三种配置形态（默认自动 / 显式标记 / 边界）、24 色与 6 套流动的数量与唯一性、菜单三行入口、`localStorage` 键名、`{balance_ds}` 别名、二改标记数量、包名与 patch 声明一致性。
+
+它**从源码里抽出函数现场求值**，不复制实现，所以实现改了测试会跟着走；断言写行为不写行号，上游重排格式不会误报。0 依赖、只读文件：
+
+```bash
+npm test
+```
+
+CI 每次 push 都会跑这一步，红了就说明有增量掉了，按报错里的函数名去 `assets/whale-widget.js` 里找回来即可。
+
 ## 兼容性与限制
 
 - **只作用于 `type: 'balance'` 模块**（余额那个大数字）。「今日已用」是 `type: 'today'`，颜色不受影响。
 - **只测过 Web 与 Windows 桌面端**。作者原有的 Codex 模式分支、音效、角色、吸附等功能都没动，但也没有逐个回归。
 - 上游若修改了 `bubbleRowsTo` 的签名或删除 `menuRow() / menuLabel()`，合并上游版本时需要重新对一遍锚点。
-- 原作者的 CI（`.github/workflows/ci.yml`）在本仓库**保持通过**：图层审计、语法、开发机路径、死设置检查均为绿。
+- 原作者的 CI（`.github/workflows/ci.yml`）在本仓库**保持通过**：图层审计、语法、开发机路径、死设置检查均为绿，另外多加了 `npm test` 这一层二改自检。
   （注：`publish.yml` 一并保留自上游，仅手动触发且本仓库未配置 npm token，不会自动发版。）
 
 ## 致谢
