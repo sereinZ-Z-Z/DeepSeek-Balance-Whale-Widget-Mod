@@ -12,6 +12,10 @@ The little whale in the bottom-right corner of DeepSeek Harness (DSH). I added a
 > Copyright belongs to the original author. Distributed under **MIT**. Huge thanks to the upstream author,
 > especially for the modular bubble system — it let these changes be a few dozen lines instead of a rewrite.
 
+> **Read this before installing**: `dsh-whale-widget` on npm is the **upstream** package (`0.4.2`); this fork
+> has never been published to npm. `dsh plugin add dsh-whale-widget` — package name only — installs upstream.
+> For this fork, use `github:sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod`. See [Install](#install).
+
 ---
 
 ## What this fork adds
@@ -168,6 +172,13 @@ Full history: [`CHANGELOG.md`](CHANGELOG.md).
 - if upstream is installed (`github:MeteorNOX/DeepSeek-Balance-Whale-Widget`, or `dsh-whale-widget` from npm), remove it first;
 - removing the plugin **does not** delete your data: bubble config, API config and the ledger all live under `~/.dsh/`, independent of the install directory.
 
+> ⚠️ **Do not install by bare package name — that gets you upstream.**
+> `dsh-whale-widget` on npm belongs to the original author (latest `0.4.2`, published 2026-11-05); this fork
+> has **never** been published there. So `dsh plugin add dsh-whale-widget` installs the **upstream** build with
+> none of the fork's features — and it installs cleanly, so nothing tells you anything went wrong.
+> This fork is only reachable by a source spec: `github:sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod`
+> (optionally `#v0.5.1-mod.1` to pin), `link:<local dir>`, or `file:<local dir>`.
+
 ### Step 0: which host are you in?
 
 | Where you see the whale | Host | Profile | How to install |
@@ -208,7 +219,7 @@ Notes:
 
 - `plugin_manager` is scoped to the current profile (`desktop` in the app); the host installs and registers the bundle with its own package manager. No terminal needed.
 - Spec syntax matches `dsh plugin`: `github:<user>/<repo>`, `link:<local dir>`, `<name>@<version>`. What is actually supported depends on the tool's response.
-- To pin a version, add a ref: `github:sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod#v0.5.1-mod.1`. Without a ref it tracks `main`. This fork is **not published to npm**, so `dsh-whale-widget@0.5.1-mod.1` will not work here.
+- To pin a version, add a ref: `github:sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod#v0.5.1-mod.1`. Without a ref it tracks `main`. This fork is **not published to npm** — `dsh-whale-widget` there is upstream `0.4.2` — so `dsh-whale-widget@0.5.1-mod.1` will not work here, and a bare `dsh-whale-widget` installs upstream.
 - If the tool is unavailable or lacks the operation, ask DSH which host capability is missing — do **not** work around it with `--profile web`.
 
 **Restart after installing**: the tool may return `"application":"applied"`, which does not mean the current window has rendered the widget. If the corner is empty, **fully quit the app (including the tray icon)** and reopen it.
@@ -303,7 +314,7 @@ On desktop, ask DSH to uninstall or re-source via `plugin_manager`; do not delet
 |---|---|---|
 | Desktop corner empty, **not even ☰**, no console errors | Installed into the `web` profile; desktop reads `desktop` | Reinstall into desktop with `plugin_manager`, never `--profile web` |
 | `profile "desktop" is managed exclusively by the Electron application` | By design, not a bug | Same as above |
-| Widget appears but the menu lacks "气泡余额 / 余额颜色 / 重载页面" | Stale front-end script (cache), or host not restarted after switching directories | Fully quit desktop (tray included) and reopen; restart `dsh web` + `Ctrl+F5`; or use the menu's reload row |
+| Widget appears but the menu lacks "气泡余额 / 余额颜色 / 重载页面" | Two different causes — check the source first: a **bare-name install pulled upstream `0.4.2`**; otherwise it's a stale front-end script (cache) or the host was not restarted after switching directories | If it came from `add dsh-whale-widget`, `remove` it and reinstall from `github:sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod`. If the source is right, fully quit desktop (tray included) and reopen; restart `dsh web` + `Ctrl+F5`; or use the menu's reload row |
 | Only `exit 1` / `pnpm failed` | Aggregate error, tells you nothing about the code | Read the **earliest** underlying error in `.plugin-manager/logs/operation-*/pnpm.log` and `hub.log` |
 | "pnpm not found" | The host's bundled package manager differs from the one on PATH | Report the host's pnpm path and version, follow that DSH version's install notes; don't reinstall the plugin blindly |
 | `ERR_PNPM_ADDING_TO_ROOT` | Dependencies were added to the profile root instead of the plugin | Remove the stray dependencies and reinstall; do not hand-edit `package.json` |

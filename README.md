@@ -12,6 +12,10 @@ DeepSeek Harness（DSH）右下角那只小鲸鱼，我给它加了点自己想�
 > 版权归原作者所有，按 **MIT** 许可分发。**感谢原作者做出这么好用的挂件**，尤其是那套模块化泡泡系统，
 > 才让下面这些改动能用几十行接上去，而不是重写一遍。
 
+> **装之前先看这句**：npm 上的 `dsh-whale-widget` 是**原版**（`0.4.2`），本仓库从未发布到 npm。
+> `dsh plugin add dsh-whale-widget` 只写包名，装到的一定是原版；要装这份二改版，用
+> `github:sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod`。细节见 [安装](#安装)。
+
 ---
 
 ## 我加了什么
@@ -169,6 +173,12 @@ curl -s -H "Authorization: Bearer sk-你的key" https://你的站/v1/dashboard/b
 - 装之前如果已经装过原版（`github:MeteorNOX/DeepSeek-Balance-Whale-Widget`，或 npm 上的 `dsh-whale-widget`），先卸载；
 - 卸载**不会**删你的数据：泡泡配置、API 配置、记账账本全在 `~/.dsh/` 下，跟插件安装目录无关。
 
+> ⚠️ **别拿包名去装，那样装到的是原版。**
+> npm 上的 `dsh-whale-widget` 属于原作者（latest `0.4.2`，2026-11-05），本仓库的版本**从未发布到 npm**。
+> 所以 `dsh plugin add dsh-whale-widget`（只写包名、不带来源）拿到的一定是**原版**，二改功能一个都没有 ——
+> 而且它装得上、跑得起来、不报错，你只会觉得「怎么跟我看到的不一样」。
+> 装本仓库只认这三种来源写法：`github:sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod`（可加 `#v0.5.1-mod.1` 锁版本）、`link:<本地目录>`、`file:<本地目录>`。
+
 ### 第 0 步：先确认你在哪种宿主里用
 
 | 你在哪看到小鲸鱼 | 宿主 | 读哪个 profile | 怎么装 |
@@ -206,7 +216,7 @@ error: profile "desktop" is managed exclusively by the Electron application
 
 - `plugin_manager` 的作用域就是当前 profile（桌面端为 `desktop`），由宿主用自带的包管理器完成安装与挂载登记，不需要你开终端。
 - 安装规格的写法和 `dsh plugin` 一致：`github:<用户>/<仓库>`、`link:<本地目录>`、`<包名>@<版本>`。具体支持到哪一步以工具实际返回为准。
-- 想固定版本：GitHub 源可以带 ref 锁到某个标签，例如 `github:sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod#v0.5.0-mod.1`；不带 ref 就跟 `main`。本仓库**没有发布到 npm**，所以 `dsh-whale-widget@0.5.0-mod.1` 这种写法在这里用不上。
+- 想固定版本：GitHub 源可以带 ref 锁到某个标签，例如 `github:sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod#v0.5.1-mod.1`；不带 ref 就跟 `main`。本仓库**没有发布到 npm**（npm 上的 `dsh-whale-widget` 是原版 `0.4.2`），所以 `dsh-whale-widget@0.5.1-mod.1` 这种写法在这里用不上；写成裸包名 `dsh-whale-widget` 只会装回原版。
 - 工具不可用、或它不支持你要做的操作时，先让 DSH 说明缺哪项宿主能力，**不要**绕过限制改用 `--profile web`。
 
 **装完要重启**：工具可能返回 `"application":"applied"`，但这不代表当前窗口已经渲染出挂件。若右下角没东西，**完全退出客户端（含系统托盘）再打开**。
@@ -301,7 +311,7 @@ dsh plugin --profile web add github:MeteorNOX/DeepSeek-Balance-Whale-Widget
 |---|---|---|
 | 桌面端右下角空白，**连 ☰ 都没有**，控制台无报错 | 装进了 `web` profile，桌面读的是 `desktop` | 用 `plugin_manager` 重装到 desktop，别用 `--profile web` |
 | 报 `profile "desktop" is managed exclusively by the Electron application` | 这是设计如此，不是 bug | 同上，改用 `plugin_manager` |
-| 装完出现了，但菜单里没有「气泡余额 / 余额颜色 / 重载页面」 | 前端脚本还是旧的（缓存），或换了目录但没重启宿主 | 桌面端完全退出（含托盘）重开；网页版重启 `dsh web` + `Ctrl+F5`；也可用菜单里的「重载页面」 |
+| 菜单能打开，但那三行（气泡余额 / 余额颜色 / 重载页面）**一个都没有** | 两种原因，先查来源：**裸包名装成了原版 `0.4.2`**；来源没问题则是前端脚本是旧的（缓存）或换了目录没重启宿主 | 如果装的是 `add dsh-whale-widget`，`remove` 后按 `github:sereinZ-Z-Z/DeepSeek-Balance-Whale-Widget-Mod` 重装；来源没问题就桌面端完全退出（含托盘）重开、网页版重启 `dsh web` + `Ctrl+F5`，或用菜单里的「重载页面」 |
 | 只看到 `exit 1` / `pnpm failed` | 汇总错误，不能据此判断是代码问题 | 先看 `.plugin-manager/logs/operation-*/pnpm.log` 和 `hub.log` 里**最早的底层报错** |
 | 提示找不到 pnpm | 宿主自带的包管理器和终端 PATH 里的不是同一个 | 先报告宿主用的 pnpm 路径与版本，按该 DSH 版本的安装说明处理，别急着重装插件 |
 | `ERR_PNPM_ADDING_TO_ROOT` | 依赖被加到了 profile 根而不是插件 | 清掉多出来的依赖后重装，不要手改 `package.json` |
